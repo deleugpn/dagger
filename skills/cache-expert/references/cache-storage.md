@@ -11,7 +11,7 @@ There are two layers to reason about:
 - In-memory result storage and lookup
 - Optional SQLite metadata for TTL expiration bookkeeping
 
-2. Session cache (`dagql/session_cache.go`)
+1. Session cache (`dagql/session_cache.go`)
 
 - Per-session wrapper around base cache
 - Tracks result lifetimes for session close
@@ -74,13 +74,13 @@ In-memory indexes:
 High-level `GetOrInitCall` behavior:
 
 1. Validate key
-2. `DoNotCache` path:
+1. `DoNotCache` path:
 
 - force random storage key for buildkit compatibility
 - execute resolver directly
 - return normalized detached result (no cache ownership)
 
-3. Non-`DoNotCache` path:
+1. Non-`DoNotCache` path:
 
 - compute storage key (possibly TTL/db influenced)
 - set storage key in context
@@ -90,14 +90,14 @@ High-level `GetOrInitCall` behavior:
 - dedupe on in-flight key if `ConcurrencyKey` is set
 - run resolver if needed
 
-4. On success (`wait`):
+1. On success (`wait`):
 
 - move from ongoing -> completed indexes
 - increment refcount
 - persist TTL metadata only when safe
 - return result
 
-5. On failure:
+1. On failure:
 
 - remove stale in-flight entries once no waiters/refs remain
 

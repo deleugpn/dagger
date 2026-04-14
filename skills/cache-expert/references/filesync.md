@@ -16,7 +16,7 @@ Client exposes two gRPC services per session:
 - supports stat-only and single-file fast paths
 - can mark gitignored entries in stats
 
-2. `FileSend` (target)
+1. `FileSend` (target)
 
 - receives filesystem/file streams from engine for exports
 
