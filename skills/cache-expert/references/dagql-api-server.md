@@ -51,6 +51,7 @@ Fields are created with `Func`, `NodeFunc`, `FuncWithCacheKey`, `NodeFuncWithCac
 - `ObjectResult[T]` (`dagql/cache.go`): selectable result wrapper with object class
 
 Current `Result[T]` model is split into:
+
 - shared immutable payload (`sharedResult`) reused across cache references
 - per-call metadata (`hitCache`, `hitContentDigestCache`, optional per-call ID override)
 
@@ -108,6 +109,7 @@ Use `NodeFunc` when you need ID-aware behavior.
 By default, returned values get the field call ID (`receiver + field + args`).
 
 When needed, you can return a result with different identity:
+
 1. **Recipe identity override**: return `ObjectResult[T]`/`Result[T]` built from a different ID or digest.
 2. **Content identity hint**: keep recipe ID but attach content digest (`WithContentDigest`) for content-based cache reuse.
 
@@ -132,6 +134,7 @@ Prebuilt helpers (`dagql/cachekey.go`):
 | `CachePerClientSchema` | Mixes client + schema digests |
 
 Important behavior in `preselect`:
+
 - Callback returns a full `CacheKey`.
 - If callback leaves `CacheKey.ID` nil, dagql uses the original computed ID.
 - If callback rewrites ID, dagql re-decodes execution args from that final ID.
@@ -152,6 +155,7 @@ Server.Resolve
 ### `preselect`
 
 `ObjectResult.preselect` (`dagql/objects.go`):
+
 1. Resolve field and arguments
 2. Build new call ID (`receiver.Append(...)`)
 3. Build default `CacheKey` from ID + field spec (`TTL`, `DoNotCache`, `ConcurrencyKey`)
@@ -161,6 +165,7 @@ Server.Resolve
 ### `call`
 
 `ObjectResult.call` (`dagql/objects.go`):
+
 1. Attach current ID to context
 2. Execute through `SessionCache.GetOrInitCall`
 3. On miss, run field resolver
@@ -183,11 +188,13 @@ type CacheKey struct {
 ```
 
 Derived behavior:
+
 - call lookup key comes from `ID.Digest()`
 - optional content fallback lookup uses `ID.ContentDigest()`
 - in-flight dedupe uses `(callKey, ConcurrencyKey)`
 
 Session wrapper responsibilities:
+
 - keep references alive for session lifetime
 - release on session close
 - dedupe telemetry emission

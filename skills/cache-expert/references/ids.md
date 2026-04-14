@@ -7,6 +7,7 @@ An ID is an immutable representation of a call chain. Cache keying starts from t
 ## Why This Matters for Cache
 
 The base cache treats call IDs as the source of truth:
+
 - Primary lookup key: `CacheKey.ID.Digest()` (recipe digest)
 - Secondary lookup key: `CacheKey.ID.ContentDigest()` (content digest), when present
 
@@ -17,6 +18,7 @@ This is why subtle ID changes (args, view, module, custom digest, content digest
 IDs are encoded DAGs of calls (base64 protobuf), defined in `dagql/call/callpbv1/call.proto` and implemented in `dagql/call/id.go`.
 
 Key concepts:
+
 - A call node stores field, type, args, receiver, module, view, and digests.
 - Calls reference other calls by digest, forming a Merkle-like DAG.
 - IDs are immutable: operations like `Append`, `WithDigest`, `WithContentDigest`, `WithArgument` return new IDs.
@@ -28,6 +30,7 @@ Key concepts:
 Represents the call recipe (operation + declared inputs). This is the default cache identity.
 
 Used for:
+
 - cache call keying
 - ID DAG references
 - most cache hit/miss reasoning
@@ -37,6 +40,7 @@ Used for:
 Optional digest representing actual result content.
 
 Used for:
+
 - content-based cache fallback when recipes differ but output content matches
 - hashing behavior of callers that reference this ID
 
@@ -45,6 +49,7 @@ Important: content digest does not replace recipe digest globally; both coexist.
 ## Digest Computation Rules That Affect Cache
 
 From `dagql/call/id.go` behavior:
+
 - Receiver contribution prefers receiver content digest when present, else receiver recipe digest.
 - Literal ID arguments similarly prefer content digest when present.
 - Arg ordering is deterministic and affects digest.
@@ -55,6 +60,7 @@ These rules explain many "why did this key change?" cases.
 ## How Cache Uses ID Data Today
 
 In `dagql/cache.go`:
+
 - `GetOrInitCall` derives `callKey` from `CacheKey.ID.Digest().String()`.
 - It also derives a content fallback key from `CacheKey.ID.ContentDigest().String()`.
 - After running `fn`, the cache indexes results under:
@@ -69,6 +75,7 @@ On content-digest hit, cache reuses payload but keeps caller-facing ID equal to 
 `GetCacheConfig` hooks can rewrite `CacheKey.ID` before execution.
 
 `dagql/cachekey.go` helpers mutate the ID digest by hashing in additional scope data:
+
 - `CachePerClient`
 - `CachePerSession`
 - `CachePerCall`
